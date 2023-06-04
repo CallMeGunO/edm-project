@@ -1,4 +1,10 @@
-# Temp development
+# Launch:
 
-При сборке помимо основного бандла генерируется файл библиотеки pdf.js, с названием в виде хэша
-В файле index.tsx pdfjs.GlobalWorkerOptions.workerSrc = указать downloadLink этого файла с платформы
+1. npm install - to install all packages
+2. npm run server - to run app in server mode at adress https://localhost:3000
+
+# Description:
+
+Electronic document management tool with React + Rsuite + ApexCharts for UI and Firebase for imitation of Backend functionality
+
+Project for the company's internal corporate portal

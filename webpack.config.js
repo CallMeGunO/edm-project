@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
 const Dotenv = require('dotenv-webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = (env, options) => {
     const getEnv = () => {
@@ -20,7 +21,12 @@ module.exports = (env, options) => {
             modules: [path.resolve(__dirname, './src'), 'node_modules'],
             extensions: ['.tsx', '.ts', '.js', '.jsx', '.css'],
         },
-        plugins: [getEnv()],
+        plugins: [
+            getEnv(),
+            new HtmlWebpackPlugin({
+                template: path.resolve(__dirname, 'public', 'index.html'),
+            }),
+        ],
         module: {
             rules: [
                 {

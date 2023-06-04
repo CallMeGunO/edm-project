@@ -38,11 +38,13 @@
         "typescript": "^5.0.2",
         "typescript-plugin-css-modules": "^5.0.0",
         "webpack": "^5.76.3",
-        "webpack-cli": "^5.0.1"
+        "webpack-cli": "^5.0.1",
+        "webpack-dev-server": "^4.15.0"
     },
     "scripts": {
         "dev": "webpack --mode development",
         "watch-dev": "webpack --mode development --watch",
-        "prod": "webpack --mode production"
+        "prod": "webpack --mode production",
+        "server": "webpack serve --mode development "
     }
 }

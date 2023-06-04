@@ -85,5 +85,14 @@ module.exports = (env, options) => {
             maxEntrypointSize: 512000,
             maxAssetSize: 512000,
         },
+        devServer:
+            options.mode === 'development'
+                ? {
+                      port: 3000,
+                      open: true,
+                      historyApiFallback: true,
+                      hot: true,
+                  }
+                : undefined,
     }
 }

@@ -1,0 +1,25 @@
+.rs-report-creation-form .rs-form-group:not(:last-child) {
+    margin-bottom: 16px;
+}
+
+.rs-report-creation-form .rs-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.rs-report-creation-form-label {
+    width: fit-content;
+    margin-bottom: 4px;
+}
+
+.rs-report-creation-form-control .rs-picker-input {
+    border-radius: 0px;
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+.rs-report-creation-form-control .rs-picker .rs-picker-toggle {
+    border-radius: 0px;
+    border: none;
+    border-bottom: 1px solid black;
+}

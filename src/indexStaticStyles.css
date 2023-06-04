@@ -1,0 +1,44 @@
+:root {
+    --rs-input-bg: #f6f6f6;
+    /* --rs-picker-count-bg: #575757; */
+    --rs-picker-count-text: #f6f6f6;
+    --rs-picker-value: #575757;
+    --rs-checkbox-checked-bg: #575757;
+    --rs-input-focus-border: #4a4a4a;
+}
+
+.rs-table-header-row-wrapper {
+    color: black;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* .rs-picker-input {
+    border-radius: 0px;
+}
+
+.rs-picker-toggle {
+    border-radius: 0px;
+}
+
+.rs-picker-toggle-wrapper {
+    max-width: 555px;
+}
+
+.rs-picker-menu {
+    border-radius: 0px;
+}
+
+.rs-picker-default .rs-picker-toggle {
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+.rs-picker-input .rs-picker-toggle {
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+.rs-form:not(.rs-form-inline) .rs-form-group:not(:last-child) {
+    margin-bottom: 16px;
+} */

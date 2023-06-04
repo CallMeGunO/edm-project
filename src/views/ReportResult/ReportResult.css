@@ -1,0 +1,13 @@
+.group-header {
+    padding: 13px 10px;
+    font-weight: 600;
+    border: 1px solid #f2f2f5;
+}
+
+.export-excel-button {
+    margin: 10px 0px;
+}
+
+.no-documents-found {
+    padding: 10px;
+}

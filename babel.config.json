@@ -1,0 +1,30 @@
+// {
+//     "presets": [
+//         "@babel/preset-env",
+//         "@babel/preset-react",
+//         "@babel/preset-typescript"
+//     ],
+//     "plugins": [
+//         [
+//         "@babel/plugin-transform-runtime",
+//             {
+//                 "regenerator": true
+//             }
+//         ]
+//     ]
+// }
+
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "useBuiltIns": "usage",
+                "corejs": "3",
+                "targets": "> 0.2%, not dead"
+            }
+        ],
+        "@babel/preset-react",
+        "@babel/preset-typescript"
+    ]
+}

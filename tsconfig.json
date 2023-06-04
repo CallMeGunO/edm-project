@@ -1,0 +1,19 @@
+{
+    "include": ["./src", "./typings.d.ts"],
+
+    "compilerOptions": {
+        "outDir": "./dist",
+        "target": "es6",
+        "module": "es6",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "jsx": "react",
+        "allowJs": true,
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "noImplicitThis": true
+    }
+}

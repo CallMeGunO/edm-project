@@ -4,11 +4,11 @@ Tool for electronic document managment
 
 # Stack
 
-> React - frontend
-> Firebase - backend
-> RSuite - UI
-> ApexCharts - Graphs
-> XLSX - xlsx export
+-   React - frontend
+-   Firebase - backend
+-   RSuite - UI
+-   ApexCharts - Graphs
+-   XLSX - xlsx export
 
 # Launch:
 

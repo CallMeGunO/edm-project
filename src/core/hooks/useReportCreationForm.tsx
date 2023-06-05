@@ -1,19 +1,12 @@
-import React, { useState, useEffect, ReactNode } from 'react'
-import DocumentsApi from '../api/documentsApi'
-import DepartmentsApi from '../api/departmentsApi'
+import React, { useState, useEffect, ReactNode, useContext } from 'react'
 import { Icon } from '@fluentui/react'
-
+import { collection, getDocs, getFirestore } from 'firebase/firestore/lite'
 import { DocumentTypes, GroupBy } from '../types/documents'
-import apiDataHelper from '../helpers/apiDataHelper'
+import FirebaseContext from '../contexts/FirebaseContext'
 
 export interface DropdownItem {
     label: string | ReactNode
     value: string
-}
-
-enum ListOfValuesFields {
-    STATES = 'lovValidityState',
-    STATUSES = 'lovStatus',
 }
 
 const useReportCreationForm = () => {
@@ -21,58 +14,18 @@ const useReportCreationForm = () => {
         {
             label: (
                 <>
-                    <Icon iconName="Inbox" /> Входящий документ
+                    <Icon iconName="Inbox" /> Документ
                 </>
             ),
-            value: DocumentTypes.INPUT_DOCS,
+            value: DocumentTypes.DOCUMENT,
         },
         {
             label: (
                 <>
-                    <Icon iconName="PageLock" /> Внутренний документ
+                    <Icon iconName="VerifiedBrand" /> Договор
                 </>
             ),
-            value: DocumentTypes.INTERNAL_DOCS,
-        },
-        {
-            label: (
-                <>
-                    <Icon iconName="VerifiedBrand" /> Доверенность
-                </>
-            ),
-            value: DocumentTypes.ATTORNEY,
-        },
-        {
-            label: (
-                <>
-                    <Icon iconName="Commitments" /> Договор
-                </>
-            ),
-            value: DocumentTypes.CONTRACTS,
-        },
-        {
-            label: (
-                <>
-                    <Icon iconName="Commitments" /> Приложение к договору
-                </>
-            ),
-            value: DocumentTypes.CONTRACTS_ATTACHMENTS,
-        },
-        {
-            label: (
-                <>
-                    <Icon iconName="Mail" /> Исходящий документ
-                </>
-            ),
-            value: DocumentTypes.OUT_DOCS,
-        },
-        {
-            label: (
-                <>
-                    <Icon iconName="Script" /> ОРД
-                </>
-            ),
-            value: DocumentTypes.MANAGERIAL_DOCS,
+            value: DocumentTypes.CONTRACT,
         },
         {
             label: (
@@ -89,17 +42,13 @@ const useReportCreationForm = () => {
             label: GroupBy.DOC_TYPE,
             value: GroupBy.DOC_TYPE,
         },
-        'Подразделение исполнителя': {
-            label: GroupBy.DEPARTMENT,
-            value: GroupBy.DEPARTMENT,
+        Пользователь: {
+            label: GroupBy.USER,
+            value: GroupBy.USER,
         },
         Статус: {
             label: GroupBy.STATUS,
             value: GroupBy.STATUS,
-        },
-        Состояние: {
-            label: GroupBy.STATE,
-            value: GroupBy.STATE,
         },
         Контрагент: {
             label: GroupBy.COUNTER_PARTY,
@@ -107,52 +56,48 @@ const useReportCreationForm = () => {
         },
     }
 
-    const [departmentsData, setDepartmentsData] = useState<DropdownItem[]>()
-    const [docStatusData, setDocStatusData] = useState<DropdownItem[]>()
-    const [docStateData, setDocStateData] = useState<DropdownItem[]>()
-    const [counterPartiesData, setCounterpartiesData] = useState<DropdownItem[]>()
+    const [usersData, setUsersData] = useState<DropdownItem[]>()
+    const [statusData, setStatusData] = useState<DropdownItem[]>()
+    const [counterPartiesData, setCounterPartiesData] = useState<DropdownItem[]>()
+
+    const { app } = useContext(FirebaseContext)
+    const db = getFirestore(app)
 
     useEffect(() => {
-        const fetchData = async () => {
-            const counterPartiesItems = await DocumentsApi.getDocumentsListsItems(process.env.COUNTERPARTIES_DICT_ID)
-            const departmentsItems = await DepartmentsApi.getDepartments()
-            const ldapDepartmentsItems = await DepartmentsApi.getLdapDepartments()
-            const allDeaprtmentsItems = [...departmentsItems, ...ldapDepartmentsItems]
-            const uniqueDepartmentsItems = Array.from(new Set(allDeaprtmentsItems.map((item) => item.displayName)))
-            const listsData = await DocumentsApi.getEntityLists()
+        const firebaseFetch = async () => {
+            const users = collection(db, 'users')
+            const usersSnapshot = await getDocs(users)
+            const usersItems = usersSnapshot.docs.map((doc) => {
+                const data = doc.data()
+                return { label: data.title, value: data.title }
+            })
+            setUsersData(usersItems)
 
-            const mappedCounterPartiesItems = counterPartiesItems.map((item) => {
-                return { label: item.data.strTitle, value: item.data.strTitle }
+            const status = collection(db, 'status')
+            const statusSnapshot = await getDocs(status)
+            const statusItems = statusSnapshot.docs.map((doc) => {
+                const data = doc.data()
+                return { label: data.title, value: data.title }
             })
-            const mappedDepartmentsItems = uniqueDepartmentsItems.map((item) => {
-                return { label: item, value: item }
-            })
-            const mappedStates = Array.from(
-                apiDataHelper.getAvailableValuesOfFieldFromList(listsData, ListOfValuesFields.STATES)
-            ).map((state) => {
-                return { label: state, value: state }
-            })
-            const mappedStatuses = Array.from(
-                apiDataHelper.getAvailableValuesOfFieldFromList(listsData, ListOfValuesFields.STATUSES)
-            ).map((status) => {
-                return { label: status, value: status }
-            })
+            setStatusData(statusItems)
 
-            setCounterpartiesData(mappedCounterPartiesItems)
-            setDepartmentsData(mappedDepartmentsItems)
-            setDocStateData(mappedStates)
-            setDocStatusData(mappedStatuses)
+            const counterParty = collection(db, 'counterParty')
+            const counterPartySnapshot = await getDocs(counterParty)
+            const counterPartyItems = counterPartySnapshot.docs.map((doc) => {
+                const data = doc.data()
+                return { label: data.title, value: data.title }
+            })
+            setCounterPartiesData(counterPartyItems)
         }
-        fetchData()
+        firebaseFetch()
     }, [])
 
     return {
         documentTypeData,
-        departmentsData,
-        docStatusData,
-        docStateData,
-        groupByData,
+        usersData,
+        statusData,
         counterPartiesData,
+        groupByData,
     }
 }
 

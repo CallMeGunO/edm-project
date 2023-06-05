@@ -13,20 +13,18 @@ import excelHelper from '../../core/helpers/excelHelper'
 interface ReportResultProps {
     documents: Document[]
     docTypes: DocumentTypes[]
-    docDepartments?: string[]
-    docStatuses?: string[]
-    docStates?: string[]
-    docCounterParties?: string[]
+    users?: string[]
+    statuses?: string[]
+    counterParties?: string[]
     groupBy?: GroupBy
     fileName?: string
 }
 
 interface Filter {
-    docType: string
-    docDepartment?: string
-    docStatus?: string
-    docState?: string
-    docCounterParty?: string
+    type: string
+    user?: string
+    status?: string
+    counterParty?: string
 }
 
 export type TableGroup = Record<string, TableRowData[]>
@@ -34,10 +32,9 @@ export type TableGroup = Record<string, TableRowData[]>
 const ReportResult: React.FC<ReportResultProps> = ({
     documents,
     docTypes,
-    docDepartments = [],
-    docStatuses = [],
-    docStates = [],
-    docCounterParties = [],
+    users = [],
+    statuses = [],
+    counterParties = [],
     groupBy,
     fileName,
 }) => {
@@ -49,19 +46,16 @@ const ReportResult: React.FC<ReportResultProps> = ({
 
     const compareDocs = (document: Document, filter: Filter) => {
         let result = true
-        if (document.docType !== filter.docType) {
+        if (document.type !== filter.type) {
             result = false
         }
-        if (filter.docDepartment && document.docDepartment !== filter.docDepartment) {
+        if (filter.user && document.user !== filter.user) {
             result = false
         }
-        if (filter.docStatus && document.docStatus !== filter.docStatus) {
+        if (filter.status && document.status !== filter.status) {
             result = false
         }
-        if (filter.docState && document.docState !== filter.docState) {
-            result = false
-        }
-        if (filter.docCounterParty && document.docCounterParty !== filter.docCounterParty) {
+        if (filter.counterParty && document.counterParty !== filter.counterParty) {
             result = false
         }
         return result
@@ -72,58 +66,43 @@ const ReportResult: React.FC<ReportResultProps> = ({
         const newTableRowData: TableRowData[] = []
 
         const newOptionalColumns: Record<string, boolean> = {
-            documentType: groupBy !== GroupBy.DOC_TYPE,
-            department: docDepartments.length !== 0 && groupBy !== GroupBy.DEPARTMENT,
-            status: docStatuses.length !== 0 && groupBy !== GroupBy.STATUS,
-            state: docStates.length !== 0 && groupBy !== GroupBy.STATE,
-            counterParty: docCounterParties.length !== 0 && groupBy !== GroupBy.COUNTER_PARTY,
-            summ: docTypes.includes(DocumentTypes.CONTRACTS),
+            type: groupBy !== GroupBy.DOC_TYPE,
+            user: users.length !== 0 && groupBy !== GroupBy.USER,
+            status: statuses.length !== 0 && groupBy !== GroupBy.STATUS,
+            counterParty: counterParties.length !== 0 && groupBy !== GroupBy.COUNTER_PARTY,
             total: true,
         }
 
         let filter: Filter
-        const filterDepartments = docDepartments.length === 0 ? ['-'] : docDepartments
-        const filterStatuses = docStatuses.length === 0 ? ['-'] : docStatuses
-        const filterStates = docStates.length === 0 ? ['-'] : docStates
-        const filterCounterParties = docCounterParties.length === 0 ? ['-'] : docCounterParties
+        const filterUsers = users.length === 0 ? ['-'] : users
+        const filterStatuses = statuses.length === 0 ? ['-'] : statuses
+        const filterCounterParties = counterParties.length === 0 ? ['-'] : counterParties
 
         let documentsAmount = 0
 
         docTypes.forEach((docType) => {
-            filterDepartments.forEach((department) => {
+            filterUsers.forEach((user) => {
                 filterStatuses.forEach((status) => {
-                    filterStates.forEach((state) => {
-                        filterCounterParties.forEach((counterParty) => {
-                            filter = {
-                                docType: docType,
-                                docDepartment: department === '-' ? undefined : department,
-                                docStatus: status === '-' ? undefined : status,
-                                docState: state === '-' ? undefined : state,
-                                docCounterParty: counterParty === '-' ? undefined : counterParty,
-                            }
+                    filterCounterParties.forEach((counterParty) => {
+                        filter = {
+                            type: docType,
+                            user: user === '-' ? undefined : user,
+                            status: status === '-' ? undefined : status,
+                            counterParty: counterParty === '-' ? undefined : counterParty,
+                        }
 
-                            const filteredDocs = documents.filter((document) => compareDocs(document, filter))
-                            if (filteredDocs.length > 0) {
-                                newTableRowData.push({
-                                    documentType: docType,
-                                    department: department,
-                                    status: status,
-                                    state: state,
-                                    counterParty: counterParty,
-                                    summ:
-                                        docType === DocumentTypes.CONTRACTS
-                                            ? filteredDocs.reduce(
-                                                  (prev, current) =>
-                                                      (prev += current.docSumm === '-' ? 0 : Number(current.docSumm)),
-                                                  0
-                                              )
-                                            : '-',
-                                    total: filteredDocs.length,
-                                })
+                        const filteredDocs = documents.filter((document) => compareDocs(document, filter))
+                        if (filteredDocs.length > 0) {
+                            newTableRowData.push({
+                                type: docType,
+                                user: user,
+                                status: status,
+                                counterParty: counterParty,
+                                total: filteredDocs.length,
+                            })
 
-                                documentsAmount += filteredDocs.length
-                            }
-                        })
+                            documentsAmount += filteredDocs.length
+                        }
                     })
                 })
             })
@@ -135,17 +114,17 @@ const ReportResult: React.FC<ReportResultProps> = ({
         newTableRowData.forEach((row) => {
             switch (groupBy) {
                 case GroupBy.DOC_TYPE:
-                    if (newTableGroups[row.documentType]) {
-                        newTableGroups[row.documentType].push(row)
+                    if (newTableGroups[row.type]) {
+                        newTableGroups[row.type].push(row)
                     } else {
-                        newTableGroups[row.documentType] = [row]
+                        newTableGroups[row.type] = [row]
                     }
                     break
-                case GroupBy.DEPARTMENT:
-                    if (newTableGroups[row.department]) {
-                        newTableGroups[row.department].push(row)
+                case GroupBy.USER:
+                    if (newTableGroups[row.user]) {
+                        newTableGroups[row.user].push(row)
                     } else {
-                        newTableGroups[row.department] = [row]
+                        newTableGroups[row.user] = [row]
                     }
                     break
                 case GroupBy.STATUS:
@@ -153,13 +132,6 @@ const ReportResult: React.FC<ReportResultProps> = ({
                         newTableGroups[row.status].push(row)
                     } else {
                         newTableGroups[row.status] = [row]
-                    }
-                    break
-                case GroupBy.STATE:
-                    if (newTableGroups[row.state]) {
-                        newTableGroups[row.state].push(row)
-                    } else {
-                        newTableGroups[row.state] = [row]
                     }
                     break
                 case GroupBy.COUNTER_PARTY:
@@ -214,9 +186,8 @@ const ReportResult: React.FC<ReportResultProps> = ({
                 displayMode={DisplayMode.FOOTER}
                 tableData={[
                     {
-                        documentType: DocumentTypes.UNPROVIDED,
-                        department: '',
-                        state: '',
+                        type: DocumentTypes.UNPROVIDED,
+                        user: '',
                         status: '',
                         total: totalDocumentsAmount,
                     },
@@ -224,12 +195,12 @@ const ReportResult: React.FC<ReportResultProps> = ({
             />
             <HorizontalBar
                 title="Статистика документов по типам"
-                {...graphDataHelper.getNonAxisGraphPropsFromTableGroups(docTypes, tableRowData, 'documentType')}
+                {...graphDataHelper.getNonAxisGraphPropsFromTableGroups(docTypes, tableRowData, 'type')}
             />
-            {docStatuses.length > 0 && (
+            {statuses.length > 0 && (
                 <RadialDiagram
                     title="Диаграмма статусов"
-                    {...graphDataHelper.getNonAxisGraphPropsFromTableGroups(docStatuses, tableRowData, 'status')}
+                    {...graphDataHelper.getNonAxisGraphPropsFromTableGroups(statuses, tableRowData, 'status')}
                 />
             )}
         </div>

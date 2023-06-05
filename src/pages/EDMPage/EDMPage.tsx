@@ -1,29 +1,33 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import ReportCreationForm from '../../views/ReportCreationForm/ReportCreationForm'
 import ReportResult from '../../views/ReportResult/ReportResult'
-import apiDataHelper from '../../core/helpers/apiDataHelper'
 import edmPageHelper from '../../core/helpers/edmPageHelper'
 
 import { Document, DocumentTypes } from '../../core/types/documents'
 
 import styles from './EDMPage.css'
+import FirebaseContext from '../../core/contexts/FirebaseContext'
+import { getFirestore } from 'firebase/firestore/lite'
 
 export const defaultFormData = {
     creationPeriod: [],
     documentType: [],
-    department: [],
+    user: [],
     status: [],
-    state: [],
     counterParties: [],
     groupBy: '',
 }
 
+const allDocumentTypes = [DocumentTypes.CONTRACT, DocumentTypes.DOCUMENT, DocumentTypes.PROTOCOL]
+
 const EDMPage: React.FC = () => {
     const [formData, setFormData] = useState<Record<string, any>>(defaultFormData)
     const [documents, setDocuments] = useState<Document[]>()
-    const [documentTypes, setDocumentTypes] = useState<DocumentTypes[]>([])
     const [isLoadingData, setIsLoadingData] = useState(false)
     const [fileName, setFileName] = useState<string>()
+
+    const { app } = useContext(FirebaseContext)
+    const db = getFirestore(app)
 
     const onFinishHandler = async () => {
         setIsLoadingData(true)
@@ -39,15 +43,11 @@ const EDMPage: React.FC = () => {
                 formData.creationPeriod[1].getMonth() + 1
             }.${formData.creationPeriod[1].getFullYear()}.xlsx`
         )
-        edmPageHelper
-            .getDocumentsFromListOfDocumentNames(formData?.documentType, from.getTime(), to.getTime())
-            .then((response) => {
-                const documentTypes = apiDataHelper.getDocumentsTypes(response)
-                setDocumentTypes(documentTypes)
-                setDocuments(response)
+        edmPageHelper.getDocuments(db, from.getTime(), to.getTime()).then((response) => {
+            setDocuments(response)
 
-                setIsLoadingData(false)
-            })
+            setIsLoadingData(false)
+        })
     }
 
     return (
@@ -61,11 +61,10 @@ const EDMPage: React.FC = () => {
             {documents && !isLoadingData && (
                 <ReportResult
                     documents={documents}
-                    docTypes={documentTypes}
-                    docDepartments={formData?.department}
-                    docStatuses={formData?.status}
-                    docStates={formData?.state}
-                    docCounterParties={formData?.counterParties}
+                    docTypes={formData?.documentType.length === 0 ? allDocumentTypes : formData?.documentType}
+                    users={formData?.user}
+                    statuses={formData?.status}
+                    counterParties={formData?.counterParties}
                     groupBy={formData?.groupBy}
                     fileName={fileName}
                 />

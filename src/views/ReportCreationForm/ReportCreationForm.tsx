@@ -32,32 +32,32 @@ interface ReportCreationFormProps {
 const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFormData, onFinishHandler, isLoadingData }) => {
     const NecessarilyFieldPopover = <Popover>Обязательно поле</Popover>
 
-    const { documentTypeData, departmentsData, docStateData, docStatusData, counterPartiesData, groupByData } =
-        useReportCreationForm()
+    const {
+        documentTypeData,
+        usersData,
+        statusData,
+        counterPartiesData: counterPartiesData,
+        groupByData,
+    } = useReportCreationForm()
 
     const [documentTypes, setDocumentTypes] = useState<string[]>([])
 
-    const [departments, setDepartments] = useState<string[]>([])
-    const allDepartments = departmentsData?.map((department) => department.value) || []
+    const [users, setUsers] = useState<string[]>([])
+    const allUsers = usersData?.map((user) => user.value) || []
 
-    const [docStatuses, setDocStatuses] = useState<string[]>([])
-    const allDocStatuses = docStatusData?.map((docStatus) => docStatus.value) || []
-
-    const [docStates, setDocStates] = useState<string[]>([])
+    const [statuses, setStatuses] = useState<string[]>([])
+    const allStatuses = statusData?.map((status) => status.value) || []
 
     const [counterParties, setCounterParties] = useState<string[]>([])
     const allCounterParties = counterPartiesData?.map((counterParty) => counterParty.value) || []
 
     const getGroupByData = () => {
         const newGroupData: DropdownItem[] = [groupByData[GroupBy.DOC_TYPE]]
-        if (formData?.department?.length > 0) {
-            newGroupData.push(groupByData[GroupBy.DEPARTMENT])
+        if (formData?.user?.length > 0) {
+            newGroupData.push(groupByData[GroupBy.USER])
         }
         if (formData?.status?.length > 0) {
             newGroupData.push(groupByData[GroupBy.STATUS])
-        }
-        if (formData?.state?.length > 0) {
-            newGroupData.push(groupByData[GroupBy.STATE])
         }
         if (formData?.counterParties?.length > 0) {
             newGroupData.push(groupByData[GroupBy.COUNTER_PARTY])
@@ -65,15 +65,25 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
         return newGroupData
     }
 
-    const handleCheckDepartmentsAll = (_: unknown, checked: boolean) => {
-        const value = checked ? allDepartments : []
-        setDepartments(value)
-        setFormData({ ...formData, department: value })
+    const handleSelectedDocumentTypesChanged = (values: string[]) => {
+        if (!values.includes(DocumentTypes.CONTRACT)) {
+            setCounterParties([])
+            formData.counterParties = []
+            checkGroupByCaseAndClear(GroupBy.COUNTER_PARTY)
+        }
+        setDocumentTypes(values)
+        setFormData({ ...formData, documentType: values })
+    }
+
+    const handleCheckUsersAll = (_: unknown, checked: boolean) => {
+        const value = checked ? allUsers : []
+        setUsers(value)
+        setFormData({ ...formData, user: value })
     }
 
     const handleCheckDocStatusesAll = (_: unknown, checked: boolean) => {
-        const value = checked ? allDocStatuses : []
-        setDocStatuses(value)
+        const value = checked ? allStatuses : []
+        setStatuses(value)
         setFormData({ ...formData, status: value })
     }
 
@@ -86,37 +96,15 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
     const clearHandler = () => {
         setFormData(defaultFormData)
         setDocumentTypes([])
-        setDepartments([])
-        setDocStatuses([])
+        setUsers([])
+        setStatuses([])
         setCounterParties([])
-        setDocStates([])
     }
 
     const checkGroupByCaseAndClear = (group: GroupBy) => {
         if (formData.groupBy === group) {
             formData.groupBy = undefined
         }
-    }
-
-    const handleSelectedDocumentTypesChanged = (values: string[]) => {
-        if (!values.includes(DocumentTypes.CONTRACTS || DocumentTypes.CONTRACTS_ATTACHMENTS)) {
-            setCounterParties([])
-            formData.counterParties = []
-            checkGroupByCaseAndClear(GroupBy.COUNTER_PARTY)
-        }
-
-        if (
-            !values.includes(DocumentTypes.CONTRACTS) ||
-            !values.includes(DocumentTypes.CONTRACTS_ATTACHMENTS) ||
-            !values.includes(DocumentTypes.MANAGERIAL_DOCS) ||
-            !values.includes(DocumentTypes.ATTORNEY)
-        ) {
-            setDocStates([])
-            formData.state = []
-            checkGroupByCaseAndClear(GroupBy.STATE)
-        }
-        setDocumentTypes(values)
-        setFormData({ ...formData, documentType: values })
     }
 
     return (
@@ -133,9 +121,8 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
                         setFormData({
                             ...value,
                             documentType: documentTypes,
-                            department: departments,
-                            status: docStatuses,
-                            state: docStates,
+                            user: users,
+                            status: statuses,
                             counterParties: counterParties,
                         })
                     }}
@@ -183,28 +170,28 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
                             }}
                         />
                     </Form.Group>
-                    <Form.Group controlId="department">
-                        <Form.ControlLabel classPrefix="report-creation-form-label">Подразделение</Form.ControlLabel>
-                        {departmentsData ? (
+                    <Form.Group controlId="user">
+                        <Form.ControlLabel classPrefix="report-creation-form-label">Пользователь</Form.ControlLabel>
+                        {usersData ? (
                             <Form.Control
                                 classPrefix="report-creation-form-control"
-                                name="department"
+                                name="user"
                                 accepter={CheckPicker}
-                                data={departmentsData}
-                                value={departments}
+                                data={usersData}
+                                value={users}
                                 onChange={(value) => {
-                                    setDepartments(value)
+                                    setUsers(value)
                                     if (value.length === 0) {
-                                        checkGroupByCaseAndClear(GroupBy.DEPARTMENT)
+                                        checkGroupByCaseAndClear(GroupBy.USER)
                                     }
-                                    setFormData({ ...formData, department: value })
+                                    setFormData({ ...formData, user: value })
                                 }}
                                 renderExtraFooter={() => (
                                     <div>
                                         <Checkbox
-                                            indeterminate={departments.length > 0 && departments.length < allDepartments.length}
-                                            checked={departments.length === allDepartments?.length}
-                                            onChange={handleCheckDepartmentsAll}
+                                            indeterminate={users.length > 0 && users.length < allUsers.length}
+                                            checked={users.length === allUsers?.length}
+                                            onChange={handleCheckUsersAll}
                                         >
                                             Выбрать все
                                         </Checkbox>
@@ -217,15 +204,15 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
                     </Form.Group>
                     <Form.Group controlId="status">
                         <Form.ControlLabel classPrefix="report-creation-form-label">Статус</Form.ControlLabel>
-                        {docStatusData ? (
+                        {statusData ? (
                             <Form.Control
                                 classPrefix="report-creation-form-control"
                                 name="status"
                                 accepter={CheckPicker}
-                                data={docStatusData}
-                                value={docStatuses}
+                                data={statusData}
+                                value={statuses}
                                 onChange={(value) => {
-                                    setDocStatuses(value)
+                                    setStatuses(value)
                                     if (value.length === 0) {
                                         checkGroupByCaseAndClear(GroupBy.STATUS)
                                     }
@@ -234,8 +221,8 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
                                 renderExtraFooter={() => (
                                     <div>
                                         <Checkbox
-                                            indeterminate={docStatuses.length > 0 && docStatuses.length < allDocStatuses.length}
-                                            checked={docStatuses.length === allDocStatuses?.length}
+                                            indeterminate={statuses.length > 0 && statuses.length < allStatuses.length}
+                                            checked={statuses.length === allStatuses?.length}
                                             onChange={handleCheckDocStatusesAll}
                                         >
                                             Выбрать все
@@ -247,36 +234,7 @@ const ReportCreationForm: React.FC<ReportCreationFormProps> = ({ formData, setFo
                             <Loader />
                         )}
                     </Form.Group>
-                    {(formData?.documentType?.includes(DocumentTypes.CONTRACTS) ||
-                        formData?.documentType?.includes(DocumentTypes.CONTRACTS_ATTACHMENTS) ||
-                        formData?.documentType?.includes(DocumentTypes.MANAGERIAL_DOCS) ||
-                        formData?.documentType?.includes(DocumentTypes.ATTORNEY)) && (
-                        <>
-                            <Form.Group controlId="state">
-                                <Form.ControlLabel classPrefix="report-creation-form-label">Состояние</Form.ControlLabel>
-                                {docStateData ? (
-                                    <Form.Control
-                                        classPrefix="report-creation-form-control"
-                                        name="state"
-                                        accepter={CheckPicker}
-                                        data={docStateData}
-                                        value={docStates}
-                                        onChange={(value) => {
-                                            setDocStates(value)
-                                            if (value.length === 0) {
-                                                checkGroupByCaseAndClear(GroupBy.STATE)
-                                            }
-                                            setFormData({ ...formData, state: value })
-                                        }}
-                                    />
-                                ) : (
-                                    <Loader />
-                                )}
-                            </Form.Group>
-                        </>
-                    )}
-                    {(formData?.documentType?.includes(DocumentTypes.CONTRACTS) ||
-                        formData?.documentType?.includes(DocumentTypes.CONTRACTS_ATTACHMENTS)) && (
+                    {formData?.documentType?.includes(DocumentTypes.CONTRACT) && (
                         <>
                             <Form.Group controlId="counterParties">
                                 <Form.ControlLabel classPrefix="report-creation-form-label">Контрагент</Form.ControlLabel>

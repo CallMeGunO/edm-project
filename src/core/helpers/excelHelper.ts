@@ -6,12 +6,10 @@ type ExcelCell = number | string
 type ExcellRow = ExcelCell[]
 
 enum HeaderCellNames {
-    DEPARTMENT = 'Подразделение исполнителя',
+    USER = 'Пользователь',
     DOCUMENT_TYPE = 'Тип документа',
     STATUS = 'Статус',
-    STATE = 'Состояние',
     COUNTERPARTY = 'Контрагент',
-    SUMM = 'Сумма',
     TOTAL = 'Всего',
     NONE = '-'
 }
@@ -19,18 +17,14 @@ enum HeaderCellNames {
 class ExcelHelper {
     private getColumnNameByTableColumnName(tableColumnName: string): HeaderCellNames {
         switch (tableColumnName) {
-            case 'department':
-                return HeaderCellNames.DEPARTMENT
-            case 'documentType':
+            case 'user':
+                return HeaderCellNames.USER
+            case 'type':
                 return HeaderCellNames.DOCUMENT_TYPE
             case 'status':
                 return HeaderCellNames.STATUS
-            case 'state':
-                return HeaderCellNames.STATE
             case 'counterParty':
                 return HeaderCellNames.COUNTERPARTY
-            case 'summ':
-                return HeaderCellNames.SUMM
             case 'total':
                 return HeaderCellNames.TOTAL
             default:
@@ -58,22 +52,17 @@ class ExcelHelper {
                 Object.entries(tableRow).forEach(([cellName, cellValue]) => {
                     switch(groupBy) {
                         case GroupBy.DOC_TYPE:
-                            if (cellName !== 'documentType' && displayedColumns[cellName]) {
+                            if (cellName !== 'type' && displayedColumns[cellName]) {
                                 arrayRowData.push(cellValue)
                             }
                             break
-                        case GroupBy.DEPARTMENT:
-                            if (cellName !== 'department' && displayedColumns[cellName]) {
+                        case GroupBy.USER:
+                            if (cellName !== 'user' && displayedColumns[cellName]) {
                                 arrayRowData.push(cellValue)
                             }
                             break
                         case GroupBy.STATUS:
                             if (cellName !== 'status' && displayedColumns[cellName]) {
-                                arrayRowData.push(cellValue)
-                            }
-                            break
-                        case GroupBy.STATE:
-                            if (cellName !== 'state' && displayedColumns[cellName]) {
                                 arrayRowData.push(cellValue)
                             }
                             break
@@ -102,15 +91,15 @@ class ExcelHelper {
         Object.entries(displayedColumns).forEach(([columnName, isColumnDisplayed]) => {
             switch (groupBy) {
                 case GroupBy.DOC_TYPE:
-                    if (columnName === 'documentType') {
+                    if (columnName === 'type') {
                         break
                     }
                     if (isColumnDisplayed) {
                         result.push(this.getColumnNameByTableColumnName(columnName))
                     }
                     break
-                case GroupBy.DEPARTMENT:
-                    if (columnName === 'department') {
+                case GroupBy.USER:
+                    if (columnName === 'user') {
                         break
                     }
                     if (isColumnDisplayed) {
@@ -119,14 +108,6 @@ class ExcelHelper {
                     break
                 case GroupBy.STATUS:
                     if (columnName === 'status') {
-                        break
-                    }
-                    if (isColumnDisplayed) {
-                        result.push(this.getColumnNameByTableColumnName(columnName))
-                    }
-                    break
-                case GroupBy.STATE:
-                    if (columnName === 'state') {
                         break
                     }
                     if (isColumnDisplayed) {

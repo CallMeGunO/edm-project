@@ -3,12 +3,10 @@ import { DocumentTypes } from '../../core/types/documents'
 import { Table, TableProps } from 'rsuite'
 
 export interface TableRowData {
-    documentType: DocumentTypes
-    department: string
+    type: DocumentTypes
+    user: string
     status: string
-    state: string
     counterParty?: string
-    summ?: number | string
     total: number | string
 }
 
@@ -70,16 +68,16 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({ tableData, displayedCol
 
     return (
         <Table cellBordered={false} bordered={false} data={getData()} {...additionalProps}>
-            {displayedColumns.department && (
+            {displayedColumns.user && (
                 <Table.Column width={300}>
-                    <Table.HeaderCell>Подразделение исполнителя</Table.HeaderCell>
-                    <Table.Cell dataKey="department" />
+                    <Table.HeaderCell>Пользователь</Table.HeaderCell>
+                    <Table.Cell dataKey="user" />
                 </Table.Column>
             )}
-            {displayedColumns.documentType && (
+            {displayedColumns.type && (
                 <Table.Column width={200}>
                     <Table.HeaderCell>Тип документа</Table.HeaderCell>
-                    <Table.Cell dataKey="documentType" />
+                    <Table.Cell dataKey="type" />
                 </Table.Column>
             )}
             {displayedColumns.status && (
@@ -88,22 +86,10 @@ const DocumentsTable: React.FC<DocumentsTableProps> = ({ tableData, displayedCol
                     <Table.Cell dataKey="status" />
                 </Table.Column>
             )}
-            {displayedColumns.state && (
-                <Table.Column width={150}>
-                    <Table.HeaderCell>Состояние</Table.HeaderCell>
-                    <Table.Cell dataKey="state" />
-                </Table.Column>
-            )}
             {displayedColumns.counterParty && (
                 <Table.Column width={200}>
                     <Table.HeaderCell>Контрагент</Table.HeaderCell>
                     <Table.Cell dataKey="counterParty" />
-                </Table.Column>
-            )}
-            {displayedColumns?.summ && (
-                <Table.Column width={80}>
-                    <Table.HeaderCell>Сумма</Table.HeaderCell>
-                    <Table.Cell dataKey="summ" />
                 </Table.Column>
             )}
             <Table.Column flexGrow={1}>
